@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require('path');
 require('dotenv').config({ path: './server/config.env' }); // Load environment variables from .env file
 
 const {connectDB, client} = require("./connect.cjs"); // Import your database connection, changed from database to connect.cjs
@@ -16,23 +17,23 @@ app.use(cors());
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(express.json()); // Middleware to parse JSON bodies
 
+app.use(express.static(path.join(__dirname, '../build')));
 
 connectDB(); //just kid
 
-
 // Routes
 app.use("/api/auth", authRoutes); // Register the authentication routes
+app.get("/api", (req, res) => {
+  console.log("GET /api route hit"); // Log when the route is accessed
+  res.send("API is working. Please use /api/auth for authentication routes.");
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'));
+});
 
 // Start server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-app.get("/api", (req, res) => {
-  console.log("GET /api route hit"); // Log when the route is accessed
-  res.send("API is working. Please use /api/auth for authentication routes.");
-});
-
-
-
